@@ -95,3 +95,29 @@ class heightChecker():
             self.pickerQ.sortEntries()
             res=self.pickerQ.getEntry(0).getSurfacePoint(render).getZ()
         return res
+
+
+class mouseControl(DirectObject):
+    def __init__(self):
+        self.picker = CollisionTraverser()
+
+        self.pickerQ = CollisionHandlerQueue()
+        pickerCollN = CollisionNode('mouseRay')
+        pickerCamN = base.camera.attachNewNode(pickerCollN)
+        pickerCollN.setFromCollideMask(BitMask32.bit(1))
+        pickerCollN.setIntoCollideMask(BitMask32.allOff())
+        self.pickerRay = CollisionRay()
+        pickerCollN.addSolid(self.pickerRay)
+        self.picker.addCollider(pickerCamN, self.pickerQ)
+        self.accept('mouse1', self.pick)
+
+    def pick(self):
+        if base.mouseWatcherNode.hasMouse():
+            mpos = base.mouseWatcherNode.getMouse()
+
+        self.pickerRay.setFromLens(base.camNode, mpos.getX(), mpos.getY())
+        self.picker.traverse(render)
+        print(self.pickerQ.getNumEntries())
+        for i in range(self.pickerQ.getNumEntries()):
+            entry = self.pickerQ.getEntry(i)
+        print('entry ' + str(entry.getSurfacePoint(render)))
